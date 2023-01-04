@@ -43,6 +43,18 @@ typedef enum {
 	SECURE_BOOT_EN = 0x5a5a5a5a,
 } sboot_st_t;
 
+enum life_cycle_e {
+	LC_INIT = 0,
+	LC_DEV,
+	LC_OEM,
+	LC_PRO,
+	LC_RMA,
+	LC_RIP,
+	LC_KILL_KEY1,
+	LC_KILL_KEY0,
+	LC_MAX,
+};
+
 /**
  * csi_efuse_get_chipid() - Get chip id in eFuse
  *
@@ -373,5 +385,19 @@ int csi_efuse_update_lc_rma();
  * Return: 0: Success others: Failed
  */
 int csi_efuse_update_lc_rip();
+
+/**
+ * csi_efuse_get_lc_preld() - get efuse life cycle preld
+ * @lc_name: the output name of life cycle preld
+ * Return: 0: Success others: Failed
+ */
+int csi_efuse_get_lc_preld(char *lc_name);
+
+/*
+ * csi_efuse_update_lc(enum life_cycle_e life_cycle)
+ * @life_cycle: the life cycle to set
+ * Return: 0: Success others: Failed
+ */
+int csi_efuse_update_lc(enum life_cycle_e life_cycle);
 
 #endif

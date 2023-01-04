@@ -410,18 +410,38 @@ void csi_efuse_gmac_macaddr_test()
 	printf("gmac mac0 address: %2x:%2x:%2x:%2x:%2x:%2x\n", r_mac1[0], r_mac1[1], r_mac1[2], r_mac1[3], r_mac1[4], r_mac1[5]);
 }
 
+void csi_efuse_get_lc_preld_test()
+{
+	char life_cycle[12] = {0};
+	int ret;
+
+	ret = csi_efuse_get_lc_preld(life_cycle);
+	if (ret) {
+		printf("ret = %d\n", ret);
+		return;
+	}
+	printf("lc_preld: %s\n", life_cycle);
+}
+
+void csi_efuse_update_lc_test()
+{
+	csi_efuse_update_lc(LC_DEV);
+	csi_efuse_update_lc(LC_RMA);
+}
+
 int main()
 {
+	printf("efuse testing....\n");
+	csi_efuse_update_lc_test();
 #if 0
+	csi_efuse_get_lc_preld_test();
 	csi_efuse_bl4_img_encrypt_test();
 	csi_efuse_bl2_img_encrypt_test();
 	csi_efuse_bl3_img_encrypt_test();
 	csi_efuse_get_bl1_version_test();
 	csi_efuse_get_hash_challenge_test();
 	csi_efuse_get_secure_boot_st_test();
-#endif
 	csi_efuse_offset_test();
-#if 0
 	csi_efuse_usr_brom_cct_test();
 	csi_efuse_usr_brom_usb_fastboot_test();
 	csi_efuse_boot_index_test();
@@ -432,9 +452,7 @@ int main()
 	csi_efuse_get_secure_boot_st_test();
 	csi_efuse_get_hash_challenge_test();
 	csi_efuse_userdata_group_test();
-#endif
 
-#if 0
 	efuse_chip_id_get_test();
 	csi_efuse_user_dbg_mode_test();
 	csi_efuse_boot_offset_test();
@@ -442,9 +460,7 @@ int main()
 	csi_efuse_bak_boot_offset_test();
 	csi_efuse_bak_boot_index_test();
 	csi_efuse_usr_brom_usb_fastboot_test();
-#endif
 
-#if 0
 	csi_efuse_usr_brom_cct_test();
 	printf("welcome to riscv world!!!\n");
 
@@ -457,13 +473,9 @@ int main()
 	csi_efuse_get_hash_challenge_test();
 	csi_efuse_userdata_group_test();
 	csi_efuse_offset_test();
-#endif
 
-#if 0
 	csi_efuse_update_lc_rma_test();
 	csi_efuse_update_lc_rip_test();
-#endif
-#if 0
 	csi_efuse_gmac_macaddr_test();
 #endif
 	return 0;

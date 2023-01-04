@@ -1505,3 +1505,113 @@ int csi_efuse_update_lc_rip()
 	return 0;
 }
 
+int csi_efuse_get_lc_preld(char *lc_name)
+{
+	int fd, ret;
+	char data[30] = {0};
+	unsigned int lf = 0;
+	const char *dev_path = "/sys/devices/platform/soc/ffff210000.efuse/lc_preld";
+	char *str;
+
+	assert(lc_name);
+
+	fd = open(dev_path, O_RDONLY);
+	if (fd < 0) {
+		printf("failed to open device '%s' (%d)\n", dev_path, -errno);
+		return -errno;
+	}
+
+	ret = read(fd, data, 30);
+	if (ret < 0){
+		printf("failed to read lifecycle from preld area\n");
+		return -errno;
+	}
+
+	lf = strtoul(data, NULL, 16);
+
+	switch (lf) {
+	case 0xC44ACFCF:
+		str = "LC_INIT";
+	break;
+	case 0xCA410C33:
+		str = "LC_DEV";
+	break;
+	case 0x548411A6:
+		str = "LC_OEM";
+	break;
+	case 0xABB00F15:
+		str = "LC_PRO";
+	break;
+	case 0x67E93416:
+		str = "LC_RMA";
+	break;
+	case 0x9fCAE0EA:
+		str = "LC_RIP";
+	break;
+	default:
+		str = "LC_MAX";
+		return -EINVAL;
+	}
+
+	strcpy(lc_name, str);
+
+	close(fd);
+
+	return 0;
+}
+
+/*
+ * csi_efuse_update_lc(enum life_cycle_e life_cycle)
+ * @life_cycle: the life cycle to set
+ * Return: 0: Success others: Failed
+ */
+int csi_efuse_update_lc(enum life_cycle_e life_cycle)
+{
+	int fd, ret = 0;
+	char *lf;
+	const char *dev_path = "/sys/devices/platform/soc/ffff210000.efuse/update_lc";
+
+	fd = open(dev_path, O_WRONLY);
+	if (fd < 0) {
+		printf("failed to open device '%s' (%d)\n", dev_path, -errno);
+		return -errno;
+	}
+
+	switch (life_cycle) {
+	case LC_DEV:
+		lf = "LC_DEV";
+	break;
+	case LC_OEM:
+		lf = "LC_OEM";
+	break;
+	case LC_PRO:
+		lf = "LC_PRO";
+	break;
+	case LC_RMA:
+		lf = "LC_RMA";
+	break;
+	case LC_RIP:
+		lf = "LC_RIP";
+	break;
+	case LC_KILL_KEY1:
+		lf = "LC_KILL_KEY1";
+	break;
+	case LC_KILL_KEY0:
+		lf = "LC_KILL_KEY0";
+	break;
+	default:
+		ret = -EINVAL;
+		goto exit;
+	}
+
+	ret = write(fd, lf, strlen(lf));
+	if (ret < 0)
+		printf("failed to update efuse life cycle(%d)\n", ret);
+	else
+		ret = 0;
+
+exit:
+	close(fd);
+
+	return ret;
+}
